@@ -9,7 +9,11 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, "src") },
   },
   server: {
+    host: true, // important for external access
     port: 3000,
+    allowedHosts: [
+      "placed-recommends-injured-asylum.trycloudflare.com"
+    ],
     proxy: {
       "/api": {
         target: "http://localhost:8080",
