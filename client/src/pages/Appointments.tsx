@@ -20,8 +20,11 @@ export default function Appointments() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Appointments</h1>
-        <Link href="/book-appointment" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">My Appointments</h1>
+          <p className="text-slate-500 text-sm mt-1">View upcoming visits and manage your booking status.</p>
+        </div>
+        <Link href="/book-appointment" className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
           + Book New
         </Link>
       </div>
@@ -29,21 +32,21 @@ export default function Appointments() {
       {isLoading ? (
         <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>
       ) : data.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 border border-dashed rounded-xl">
+        <div className="text-center py-16 text-slate-400 border border-dashed border-slate-300 rounded-2xl bg-slate-50">
           No appointments yet. <Link href="/book-appointment" className="text-blue-600 hover:underline">Book one now</Link>
         </div>
       ) : (
         <div className="space-y-4">
           {data.map((a: any) => (
-            <div key={a.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex justify-between items-start">
+            <div key={a.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex justify-between items-start gap-4 hover:shadow-md transition-shadow">
               <div>
-                <p className="font-semibold text-gray-900 text-lg">{a.doctorName || "Doctor"}</p>
-                <p className="text-sm text-gray-500">{a.doctorSpecialization}</p>
-                <p className="text-sm text-gray-700 mt-1">
+                <p className="font-semibold text-slate-900 text-lg">{a.doctorName || "Doctor"}</p>
+                <p className="text-sm text-slate-500">{a.doctorSpecialization}</p>
+                <p className="text-sm text-slate-700 mt-1">
                   <span className="font-medium">{a.date}</span> at {a.time} —{" "}
                   <span className="capitalize">{a.type?.replace("-", " ")}</span>
                 </p>
-                {a.notes && <p className="text-sm text-gray-500 mt-1 italic">{a.notes}</p>}
+                {a.notes && <p className="text-sm text-slate-500 mt-1 italic">{a.notes}</p>}
               </div>
               <div className="flex flex-col items-end gap-3">
                 <span className={`text-xs px-3 py-1 rounded-full font-medium capitalize ${statusColor[a.status] || "bg-gray-100 text-gray-600"}`}>{a.status}</span>
@@ -51,7 +54,7 @@ export default function Appointments() {
                   <button
                     onClick={() => cancel.mutate(a.id)}
                     disabled={cancel.isPending}
-                    className="text-xs text-red-600 hover:text-red-700 border border-red-200 px-3 py-1 rounded-lg"
+                    className="text-xs text-red-600 hover:text-red-700 border border-red-200 px-3 py-1 rounded-xl bg-red-50/60"
                   >
                     Cancel
                   </button>
