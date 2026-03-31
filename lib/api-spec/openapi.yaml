@@ -1,22 +1,41 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Neural Nexas Healthcare API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: patients
+    description: Patient management
+  - name: doctors
+    description: Doctor management
+  - name: appointments
+    description: Appointment booking
+  - name: prescriptions
+    description: Prescription management
+  - name: records
+    description: Medical records
+  - name: stores
+    description: Medical stores
+  - name: orders
+    description: Medicine orders
+  - name: emergency
+    description: Emergency services
+  - name: admin
+    description: Admin operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +43,573 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /patients:
+    get:
+      operationId: getPatients
+      tags: [patients]
+      summary: Get all patients
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Create patient profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "201":
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+    put:
+      operationId: updatePatient
+      tags: [patients]
+      summary: Update patient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "200":
+          description: Patient updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /doctors:
+    get:
+      operationId: getDoctors
+      tags: [doctors]
+      summary: Get all doctors
+      responses:
+        "200":
+          description: List of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+    post:
+      operationId: createDoctor
+      tags: [doctors]
+      summary: Create doctor profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DoctorInput"
+      responses:
+        "201":
+          description: Doctor created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Doctor"
+
+  /doctors/{id}:
+    get:
+      operationId: getDoctor
+      tags: [doctors]
+      summary: Get doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Doctor details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Doctor"
+
+  /appointments:
+    get:
+      operationId: getAppointments
+      tags: [appointments]
+      summary: Get appointments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [appointments]
+      summary: Book an appointment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "201":
+          description: Appointment booked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      tags: [appointments]
+      summary: Get appointment by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Appointment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    put:
+      operationId: updateAppointment
+      tags: [appointments]
+      summary: Update appointment status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentStatusUpdate"
+      responses:
+        "200":
+          description: Appointment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: cancelAppointment
+      tags: [appointments]
+      summary: Cancel appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Appointment cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /prescriptions:
+    get:
+      operationId: getPrescriptions
+      tags: [prescriptions]
+      summary: Get prescriptions
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of prescriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prescription"
+    post:
+      operationId: createPrescription
+      tags: [prescriptions]
+      summary: Create prescription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrescriptionInput"
+      responses:
+        "201":
+          description: Prescription created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescription"
+
+  /prescriptions/{id}:
+    get:
+      operationId: getPrescription
+      tags: [prescriptions]
+      summary: Get prescription by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Prescription details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prescription"
+
+  /records:
+    get:
+      operationId: getRecords
+      tags: [records]
+      summary: Get medical records
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of medical records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicalRecord"
+    post:
+      operationId: createRecord
+      tags: [records]
+      summary: Create medical record
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicalRecordInput"
+      responses:
+        "201":
+          description: Record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicalRecord"
+
+  /records/{id}:
+    get:
+      operationId: getRecord
+      tags: [records]
+      summary: Get record by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Medical record details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MedicalRecord"
+
+  /stores:
+    get:
+      operationId: getStores
+      tags: [stores]
+      summary: Get nearby stores and hospitals
+      responses:
+        "200":
+          description: List of stores and hospitals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Store"
+
+  /stores/{id}:
+    get:
+      operationId: getStore
+      tags: [stores]
+      summary: Get store by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Store details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+
+  /orders:
+    get:
+      operationId: getOrders
+      tags: [orders]
+      summary: Get medicine orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create medicine order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /emergency:
+    post:
+      operationId: triggerEmergency
+      tags: [emergency]
+      summary: Trigger emergency alert
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmergencyInput"
+      responses:
+        "200":
+          description: Emergency triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Admin statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [admin]
+      summary: Get all users (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +619,561 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [patient, doctor, admin]
+      required:
+        - name
+        - email
+        - password
+        - role
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [patient, doctor, admin]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+        bloodGroup:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        chronicConditions:
+          type: array
+          items:
+            type: string
+        emergencyContact:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - createdAt
+
+    PatientInput:
+      type: object
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          type: string
+        gender:
+          type: string
+        bloodGroup:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        chronicConditions:
+          type: array
+          items:
+            type: string
+        emergencyContact:
+          type: string
+      required:
+        - name
+
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        specialization:
+          type: string
+        qualification:
+          type: string
+        experience:
+          type: number
+        phone:
+          type: string
+        hospital:
+          type: string
+        consultationFee:
+          type: number
+        rating:
+          type: number
+        isVerified:
+          type: boolean
+        availableSlots:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - specialization
+        - isVerified
+        - createdAt
+
+    DoctorInput:
+      type: object
+      properties:
+        name:
+          type: string
+        specialization:
+          type: string
+        qualification:
+          type: string
+        experience:
+          type: number
+        phone:
+          type: string
+        hospital:
+          type: string
+        consultationFee:
+          type: number
+        availableSlots:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - specialization
+
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: string
+        patientId:
+          type: string
+        doctorId:
+          type: string
+        patientName:
+          type: string
+        doctorName:
+          type: string
+        doctorSpecialization:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+        type:
+          type: string
+          enum: [in-person, online, zero-wait]
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientId
+        - doctorId
+        - date
+        - time
+        - type
+        - status
+        - createdAt
+
+    AppointmentInput:
+      type: object
+      properties:
+        doctorId:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+        type:
+          type: string
+          enum: [in-person, online, zero-wait]
+        notes:
+          type: string
+      required:
+        - doctorId
+        - date
+        - time
+        - type
+
+    AppointmentStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, completed, cancelled]
+      required:
+        - status
+
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: string
+        patientId:
+          type: string
+        doctorId:
+          type: string
+        patientName:
+          type: string
+        doctorName:
+          type: string
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        validUntil:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientId
+        - doctorId
+        - medications
+        - createdAt
+
+    Medication:
+      type: object
+      properties:
+        name:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+      required:
+        - name
+        - dosage
+        - frequency
+
+    PrescriptionInput:
+      type: object
+      properties:
+        patientId:
+          type: string
+        medications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        diagnosis:
+          type: string
+        notes:
+          type: string
+        validUntil:
+          type: string
+      required:
+        - patientId
+        - medications
+
+    MedicalRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        patientId:
+          type: string
+        doctorId:
+          type: string
+        patientName:
+          type: string
+        type:
+          type: string
+          enum: [lab-report, imaging, discharge-summary, consultation, vaccination, other]
+        title:
+          type: string
+        description:
+          type: string
+        fileUrl:
+          type: string
+        date:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientId
+        - type
+        - title
+        - createdAt
+
+    MedicalRecordInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [lab-report, imaging, discharge-summary, consultation, vaccination, other]
+        title:
+          type: string
+        description:
+          type: string
+        fileUrl:
+          type: string
+        date:
+          type: string
+      required:
+        - type
+        - title
+
+    Store:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [hospital, pharmacy, clinic, diagnostic-center]
+        address:
+          type: string
+        phone:
+          type: string
+        rating:
+          type: number
+        distance:
+          type: string
+        isOpen:
+          type: boolean
+        openHours:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - address
+        - isOpen
+        - createdAt
+
+    OrderItem:
+      type: object
+      properties:
+        medicineName:
+          type: string
+        quantity:
+          type: number
+        price:
+          type: number
+      required:
+        - medicineName
+        - quantity
+        - price
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        patientId:
+          type: string
+        storeId:
+          type: string
+        storeName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        totalAmount:
+          type: number
+        status:
+          type: string
+          enum: [pending, processing, out-for-delivery, delivered, cancelled]
+        deliveryAddress:
+          type: string
+        prescriptionId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - patientId
+        - storeId
+        - items
+        - totalAmount
+        - status
+        - createdAt
+
+    OrderInput:
+      type: object
+      properties:
+        storeId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        deliveryAddress:
+          type: string
+        prescriptionId:
+          type: string
+      required:
+        - storeId
+        - items
+        - deliveryAddress
+
+    EmergencyInput:
+      type: object
+      properties:
+        location:
+          type: string
+        description:
+          type: string
+        contactNumber:
+          type: string
+      required:
+        - location
+        - description
+
+    EmergencyResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        emergencyId:
+          type: string
+        estimatedResponse:
+          type: string
+        nearestHospital:
+          type: string
+      required:
+        - message
+        - emergencyId
+        - estimatedResponse
+
+    AdminStats:
+      type: object
+      properties:
+        totalPatients:
+          type: number
+        totalDoctors:
+          type: number
+        totalAppointments:
+          type: number
+        totalOrders:
+          type: number
+        pendingAppointments:
+          type: number
+        activeOrders:
+          type: number
+        revenue:
+          type: number
+        newUsersToday:
+          type: number
+      required:
+        - totalPatients
+        - totalDoctors
+        - totalAppointments
+        - totalOrders
+        - pendingAppointments
+        - activeOrders
+        - revenue
+        - newUsersToday
